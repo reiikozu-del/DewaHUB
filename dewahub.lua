@@ -1,4 +1,4 @@
--- language: Luau, file: core_streaming_fixed.lua, target: GitHub Raw (Full Features + StreamingEnabled Fix)
+-- language: Luau, file: core_dual_save_bright.lua, target: Roblox Client (Dual Save + Bright Minimalist UI)
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -15,7 +15,8 @@ local noclip, infJump, wsVal = false, false, 16
 local cfSpeedActive = false
 local cfSpeedVal = 1
 local instantPromptActive = false
-local savedCFrame = nil
+local savedCFrame1 = nil
+local savedCFrame2 = nil
 local espActive = false
 local flyActive = false
 local flySpeed = 50
@@ -25,7 +26,7 @@ local tapTpActive = false
 local isSpectating = false
 local originalCameraSubject = nil
 
--- UI Factory helper
+-- UI Factory helper (Modern Bright Minimalist Theme)
 local function make(class, props, parent)
     local obj = Instance.new(class)
     for k, v in pairs(props) do obj[k] = v end
@@ -33,76 +34,83 @@ local function make(class, props, parent)
     return obj
 end
 
--- Safe Teleport Helper (Mencegah "Gameplay Paused" akibat StreamingEnabled)
+-- Safe Teleport Helper (StreamingEnabled Fix)
 local function safeTeleport(targetCFrame)
     local char = player.Character
     if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-    
-    local targetPosition = targetCFrame.Position
     pcall(function()
         if game.Workspace.StreamingEnabled then
-            player:RequestStreamAroundAsync(targetPosition)
+            player:RequestStreamAroundAsync(targetCFrame.Position)
         end
     end)
-    
     task.wait(0.05)
     char.HumanoidRootPart.CFrame = targetCFrame
 end
 
 -- ScreenGui
-local screen = make("ScreenGui", {Name = "RedBlackHubModular", ResetOnSpawn = false}, gui)
+local screen = make("ScreenGui", {Name = "BrightMinimalHub", ResetOnSpawn = false}, gui)
 
--- Floating Teleport Back Button (Draggable)
-local floatBackBtn = make("TextButton", {
-    Size = UDim2.new(0, 45, 0, 45), Position = UDim2.new(0, 20, 0, 90),
-    BackgroundColor3 = Color3.fromRGB(180, 20, 20), TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold, TextSize = 12, Text = "BACK", Visible = false, ZIndex = 10
+-- Floating Teleport Buttons (Dual Back Buttons)
+local floatBack1 = make("TextButton", {
+    Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(0, 20, 0, 90),
+    BackgroundColor3 = Color3.fromRGB(59, 130, 246), TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold, TextSize = 11, Text = "BK 1", Visible = false, ZIndex = 10
 }, screen)
-make("UICorner", {CornerRadius = UDim.new(0, 8)}, floatBackBtn)
-make("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 0.8}, floatBackBtn)
+make("UICorner", {CornerRadius = UDim.new(0, 12)}, floatBack1)
+make("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1.5}, floatBack1)
 
--- Open Button (Draggable)
+local floatBack2 = make("TextButton", {
+    Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(0, 20, 0, 150),
+    BackgroundColor3 = Color3.fromRGB(168, 85, 247), TextColor3 = Color3.fromRGB(255, 255, 255),
+    Font = Enum.Font.GothamBold, TextSize = 11, Text = "BK 2", Visible = false, ZIndex = 10
+}, screen)
+make("UICorner", {CornerRadius = UDim.new(0, 12)}, floatBack2)
+make("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1.5}, floatBack2)
+
+-- Open Button
 local openBtn = make("TextButton", {
-    Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(0, 20, 0, 20),
-    BackgroundColor3 = Color3.fromRGB(20, 20, 20), TextColor3 = Color3.fromRGB(220, 30, 30),
-    Font = Enum.Font.GothamBold, TextSize = 18, Text = "UI", Visible = false, ZIndex = 10
+    Size = UDim2.new(0, 48, 0, 48), Position = UDim2.new(0, 20, 0, 20),
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255), TextColor3 = Color3.fromRGB(14, 165, 233),
+    Font = Enum.Font.GothamBold, TextSize = 16, Text = "HUB", Visible = false, ZIndex = 10
 }, screen)
-make("UICorner", {CornerRadius = UDim.new(0, 8)}, openBtn)
-make("UIStroke", {Color = Color3.fromRGB(180, 20, 20), Thickness = 2}, openBtn)
+make("UICorner", {CornerRadius = UDim.new(0, 12)}, openBtn)
+make("UIStroke", {Color3 = Color3.fromRGB(14, 165, 233), Thickness = 2}, openBtn)
+make("UI)-\n", {}, openBtn) -- placeholder safety
 
--- Main Frame
+-- Main Frame (Clean, Bright, Minimalist Glassmorphism Style)
 local main = make("Frame", {
-    Size = UDim2.new(0, 500, 0, 320), Position = UDim2.new(0.5, -250, 0.5, -160),
-    BackgroundColor3 = Color3.fromRGB(15, 15, 15), BorderSizePixel = 0
+    Size = UDim2.new(0, 480, 0, 300), Position = UDim2.new(0.5, -240, 0.5, -150),
+    BackgroundColor3 = Color3.fromRGB(248, 250, 252), BorderSizePixel = 0
 }, screen)
-make("UICorner", {CornerRadius = UDim.new(0, 8)}, main)
-make("UIStroke", {Color = Color3.fromRGB(180, 20, 20), Thickness = 1.5}, main)
+make("UICorner", {CornerRadius = UDim.new(0, 14)}, main)
+make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 2}, main)
 
 -- Top Bar
-local topBar = make("Frame", {Size = UDim2.new(1, 0, 0, 35), BackgroundTransparency = 1}, main)
+local topBar = make("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1}, main)
 make("TextLabel", {
-    Size = UDim2.new(1, -70, 1, 0), Position = UDim2.new(0, 12, 0, 0),
-    BackgroundTransparency = 1, Font = Enum.Font.GothamBold, Text = "SYSTEM // HUB",
-    TextColor3 = Color3.fromRGB(240, 240, 240), TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left
+    Size = UDim2.new(1, -70, 1, 0), Position = UDim2.new(0, 16, 0, 0),
+    BackgroundTransparency = 1, Font = Enum.Font.GothamBold, Text = "POWA // HUB",
+    TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left
 }, topBar)
 
 local minBtn = make("TextButton", {
-    Size = UDim2.new(0, 30, 0, 30), Position = UDim2.new(1, -35, 0, 2),
-    BackgroundTransparency = 1, Font = Enum.Font.GothamBold, Text = "-",
-    TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 18
+    Size = UDim2.new(0, 32, 0, 32), Position = UDim2.new(1, -40, 0, 4),
+    BackgroundColor3 = Color3.fromRGB(241, 245, 249), Font = Enum.Font.GothamBold, Text = "-",
+    TextColor3 = Color3.fromRGB(100, 116, 139), TextSize = 16
 }, topBar)
+make("UICorner", {CornerRadius = UDim.new(0, 8)}, minBtn)
 
 -- Sidebar & Content
 local sidebar = make("ScrollingFrame", {
-    Size = UDim2.new(0, 130, 1, -45), Position = UDim2.new(0, 10, 0, 40),
-    BackgroundColor3 = Color3.fromRGB(20, 20, 20), BorderSizePixel = 0,
+    Size = UDim2.new(0, 125, 1, -55), Position = UDim2.new(0, 12, 0, 45),
+    BackgroundColor3 = Color3.fromRGB(241, 245, 249), BorderSizePixel = 0,
     CanvasSize = UDim2.new(0,0,0,0), ScrollBarThickness = 2
 }, main)
-make("UICorner", {CornerRadius = UDim.new(0, 6)}, sidebar)
-make("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 5)}, sidebar)
+make("UICorner", {CornerRadius = UDim.new(0, 10)}, sidebar)
+make("UIListLayout", {SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 6)}, sidebar)
 
 local contentArea = make("Frame", {
-    Size = UDim2.new(1, -155, 1, -45), Position = UDim2.new(0, 145, 0, 40),
+    Size = UDim2.new(1, -150, 1, -55), Position = UDim2.new(0, 145, 0, 45),
     BackgroundTransparency = 1, BorderSizePixel = 0
 }, main)
 
@@ -110,11 +118,11 @@ local contentArea = make("Frame", {
 local tabs, contents = {"Profile", "Menu", "Misc", "Server Hop", "Setting"}, {}
 for i, name in ipairs(tabs) do
     local tBtn = make("TextButton", {
-        Size = UDim2.new(1, -10, 0, 35), BackgroundColor3 = i == 1 and Color3.fromRGB(180, 20, 20) or Color3.fromRGB(28, 28, 28),
-        Font = Enum.Font.GothamMedium, Text = name, TextColor3 = i == 1 and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(180, 180, 180),
-        TextSize = 13, LayoutOrder = i
+        Size = UDim2.new(1, -8, 0, 36), BackgroundColor3 = i == 1 and Color3.fromRGB(14, 165, 233) or Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font.GothamSemibold, Text = name, TextColor3 = i == 1 and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(100, 116, 139),
+        TextSize = 12, LayoutOrder = i
     }, sidebar)
-    make("UICorner", {CornerRadius = UDim.new(0, 4)}, tBtn)
+    make("UICorner", {CornerRadius = UDim.new(0, 8)}, tBtn)
 
     local panel = make("ScrollingFrame", {
         Size = UDim2.new(1, 0, 1, 0), BackgroundTransparency = 1, BorderSizePixel = 0,
@@ -126,58 +134,62 @@ for i, name in ipairs(tabs) do
     tBtn.MouseButton1Click:Connect(function()
         for _, child in ipairs(sidebar:GetChildren()) do
             if child:IsA("TextButton") then
-                child.BackgroundColor3, child.TextColor3 = Color3.fromRGB(28, 28, 28), Color3.fromRGB(180, 180, 180)
+                child.BackgroundColor3, child.TextColor3 = Color3.fromRGB(255, 255, 255), Color3.fromRGB(100, 116, 139)
             end
         end
         for _, p in pairs(contents) do p.Visible = false end
-        tBtn.BackgroundColor3, tBtn.TextColor3 = Color3.fromRGB(180, 20, 20), Color3.fromRGB(255, 255, 255)
+        tBtn.BackgroundColor3, tBtn.TextColor3 = Color3.fromRGB(14, 165, 233), Color3.fromRGB(255, 255, 255)
         panel.Visible = true
     end)
 end
 
--- Helper UI Components
+-- Helper UI Components (Bright Minimalist Style)
 local function makeToggle(parentPanel, text, callback)
     local btn = make("TextButton", {
-        Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = Color3.fromRGB(22, 22, 22),
-        Font = Enum.Font.GothamMedium, Text = text .. ": OFF", TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13
+        Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font.GothamMedium, Text = text .. " : OFF", TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12
     }, parentPanel)
-    make("UICorner", {CornerRadius = UDim.new(0, 4)}, btn)
+    make("UICorner", {CornerRadius = UDim.new(0, 8)}, btn)
+    make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, btn)
     
     local state = false
     btn.MouseButton1Click:Connect(function()
         state = not state
-        btn.Text = text .. (state and ": ON" or ": OFF")
-        btn.TextColor3 = state and Color3.fromRGB(255, 80, 80) or Color3.fromRGB(200, 200, 200)
-        btn.BackgroundColor3 = state and Color3.fromRGB(40, 15, 15) or Color3.fromRGB(22, 22, 22)
+        btn.Text = text .. (state and " : ON" or " : OFF")
+        btn.TextColor3 = state and Color3.fromRGB(14, 165, 233) or Color3.fromRGB(71, 85, 105)
+        btn.BackgroundColor3 = state and Color3.fromRGB(240, 249, 255) or Color3.fromRGB(255, 255, 255)
         callback(state)
     end)
 end
 
 local function makeButton(parentPanel, text, callback)
     local btn = make("TextButton", {
-        Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = Color3.fromRGB(22, 22, 22),
-        Font = Enum.Font.GothamMedium, Text = text, TextColor3 = Color3.fromRGB(200, 200, 200), TextSize = 13
+        Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font.GothamMedium, Text = text, TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12
     }, parentPanel)
-    make("UICorner", {CornerRadius = UDim.new(0, 4)}, btn)
+    make("UICorner", {CornerRadius = UDim.new(0, 8)}, btn)
+    make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, btn)
     btn.MouseButton1Click:Connect(callback)
 end
 
 -- Profile Features
 local pPanel = contents["Profile"]
 
-local wsC = make("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1}, pPanel)
-make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "WalkSpeed", TextColor3 = Color3.fromRGB(220, 220, 220), TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left}, wsC)
-local wsBox = make("TextBox", {Size = UDim2.new(0.35, 0, 0.8, 0), Position = UDim2.new(0.65, 0, 0.1, 0), BackgroundColor3 = Color3.fromRGB(25, 25, 25), Font = Enum.Font.GothamMedium, Text = "16", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13}, wsC)
-make("UICorner", {CornerRadius = UDim.new(0, 4)}, wsBox)
+local wsC = make("Frame", {Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1}, pPanel)
+make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "WalkSpeed", TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, wsC)
+local wsBox = make("TextBox", {Size = UDim2.new(0.35, 0, 0.8, 0), Position = UDim2.new(0.65, 0, 0.1, 0), BackgroundColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamMedium, Text = "16", TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12}, wsC)
+make("UICorner", {CornerRadius = UDim.new(0, 6)}, wsBox)
+make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, wsBox)
 
 wsBox.FocusLost:Connect(function(e)
     if e then wsVal = tonumber(wsBox.Text) or 16 end
 end)
 
-local cfC = make("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1}, pPanel)
-make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "CFrame Speed (0.5-2)", TextColor3 = Color3.fromRGB(220, 220, 220), TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left}, cfC)
-local cfBox = make("TextBox", {Size = UDim2.new(0.35, 0, 0.8, 0), Position = UDim2.new(0.65, 0, 0.1, 0), BackgroundColor3 = Color3.fromRGB(25, 25, 25), Font = Enum.Font.GothamMedium, Text = "1", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13}, cfC)
-make("UICorner", {CornerRadius = UDim.new(0, 4)}, cfBox)
+local cfC = make("Frame", {Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1}, pPanel)
+make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "CFrame Speed", TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, cfC)
+local cfBox = make("TextBox", {Size = UDim2.new(0.35, 0, 0.8, 0), Position = UDim2.new(0.65, 0, 0.1, 0), BackgroundColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamMedium, Text = "1", TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12}, cfC)
+make("UICorner", {CornerRadius = UDim.new(0, 6)}, cfBox)
+make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, cfBox)
 
 cfBox.FocusLost:Connect(function(e)
     if e then cfSpeedVal = tonumber(cfBox.Text) or 1 end
@@ -187,7 +199,7 @@ makeToggle(pPanel, "CFrame Speed Bypass", function(s) cfSpeedActive = s end)
 makeToggle(pPanel, "NoClip", function(s) noclip = s end)
 makeToggle(pPanel, "Infinite Jump", function(s) infJump = s end)
 
--- Menu Features (Instant Prompt, Waypoint, Tap TP, Spectate)
+-- Menu Features (Dual Save Points, Tap TP, Spectate)
 local mPanel = contents["Menu"]
 
 makeToggle(mPanel, "Instant Prompt", function(s)
@@ -215,30 +227,47 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
-makeButton(mPanel, "Save Position", function()
+-- Dual Save Point Logic
+makeButton(mPanel, "Save Position 1", function()
     local char = player.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
-        savedCFrame = char.HumanoidRootPart.CFrame
-        floatBackBtn.Visible = true 
+        savedCFrame1 = char.HumanoidRootPart.CFrame
+        floatBack1.Visible = true 
     end
 end)
 
-local function teleportBack()
-    if savedCFrame then
-        safeTeleport(savedCFrame)
-    end
-end
+makeButton(mPanel, "Teleport Back 1", function()
+    if savedCFrame1 then safeTeleport(savedCFrame1) end
+end)
 
-makeButton(mPanel, "Teleport Back", teleportBack)
-floatBackBtn.MouseButton1Click:Connect(teleportBack)
+makeButton(mPanel, "Save Position 2", function()
+    local char = player.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        savedCFrame2 = char.HumanoidRootPart.CFrame
+        floatBack2.Visible = true 
+    end
+end)
+
+makeButton(mPanel, "Teleport Back 2", function()
+    if savedCFrame2 then safeTeleport(savedCFrame2) end
+end)
+
+floatBack1.MouseButton1Click:Connect(function()
+    if savedCFrame1 then safeTeleport(savedCFrame1) end
+end)
+
+floatBack2.MouseButton1Click:Connect(function()
+    if savedCFrame2 then safeTeleport(savedCFrame2) end
+end)
 
 -- Player Teleport & Spectate Section
 local tpBox = make("TextBox", {
-    Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = Color3.fromRGB(25, 25, 25),
+    Size = UDim2.new(1, 0, 0, 38), BackgroundColor3 = Color3.fromRGB(255, 255, 255),
     Font = Enum.Font.GothamMedium, Text = "", PlaceholderText = "Ketik Nama Player...",
-    TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13
+    TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12
 }, mPanel)
-make("UICorner", {CornerRadius = UDim.new(0, 4)}, tpBox)
+make("UICorner", {CornerRadius = UDim.new(0, 6)}, tpBox)
+make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, tpBox)
 
 makeButton(mPanel, "Teleport Ke Player", function()
     local targetName = string.lower(tpBox.Text)
@@ -271,7 +300,7 @@ makeButton(mPanel, "Spectate / Tonton Player", function()
     end
 end)
 
--- Misc Features (ESP, Fly, Fullbright, FOV)
+-- Misc Features
 local miscPanel = contents["Misc"]
 
 makeToggle(miscPanel, "Player ESP", function(s)
@@ -284,7 +313,7 @@ makeToggle(miscPanel, "Player ESP", function(s)
                         local hl = Instance.new("Highlight")
                         hl.Name = "HubHighlight"
                         hl.Adornee = char
-                        hl.FillColor = Color3.fromRGB(180, 20, 20)
+                        hl.FillColor = Color3.fromRGB(14, 165, 233)
                         hl.OutlineColor = Color3.fromRGB(255, 255, 255)
                         hl.Parent = char
                     end
@@ -338,10 +367,11 @@ makeToggle(miscPanel, "Fullbright", function(s)
     end
 end)
 
-local fovC = make("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1}, miscPanel)
-make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "Field of View (FOV)", TextColor3 = Color3.fromRGB(220, 220, 220), TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left}, fovC)
-local fovBox = make("TextBox", {Size = UDim2.new(0.35, 0, 0.8, 0), Position = UDim2.new(0.65, 0, 0.1, 0), BackgroundColor3 = Color3.fromRGB(25, 25, 25), Font = Enum.Font.GothamMedium, Text = "70", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 13}, fovC)
-make("UICorner", {CornerRadius = UDim.new(0, 4)}, fovBox)
+local fovC = make("Frame", {Size = UDim2.new(1, 0, 0, 38), BackgroundTransparency = 1}, miscPanel)
+make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "Field of View", TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, fovC)
+local fovBox = make("TextBox", {Size = UDim2.new(0.35, 0, 0.8, 0), Position = UDim2.new(0.65, 0, 0.1, 0), BackgroundColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamMedium, Text = "70", TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12}, fovC)
+make("UICorner", {CornerRadius = UDim.new(0, 6)}, fovBox)
+make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, fovBox)
 
 fovBox.FocusLost:Connect(function(e)
     if e then
@@ -356,9 +386,9 @@ makeButton(shPanel, "Rejoin Same Server", function()
     TeleportService:Teleport(game.PlaceId, player)
 end)
 
--- Setting Tab (Anti-AFK)
+-- Setting Tab
 local setPanel = contents["Setting"]
-makeToggle(setPanel, "Anti-AFK (Prevent Kick)", function(s)
+makeToggle(setPanel, "Anti-AFK", function(s)
     antiAfkActive = s
 end)
 
@@ -412,7 +442,7 @@ RunService.RenderStepped:Connect(function(delta)
     end
 end)
 
-UserInputService.JumpRequest:Connect(function(input, gameProcessed)
+UserInputService.JumpRequest:Connect(function()
     if infJump then
         local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
         if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
@@ -434,10 +464,17 @@ openBtn.InputBegan:Connect(function(i)
     end
 end)
 
-local backDragging, backDragStart, backStartPos
-floatBackBtn.InputBegan:Connect(function(i)
+local back1Dragging, back1DragStart, back1StartPos
+floatBack1.InputBegan:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
-        backDragging, backDragStart, backStartPos = true, i.Position, floatBackBtn.Position
+        back1Dragging, back1DragStart, back1StartPos = true, i.Position, floatBack1.Position
+    end
+end)
+
+local back2Dragging, back2DragStart, back2StartPos
+floatBack2.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+        back2Dragging, back2DragStart, back2StartPos = true, i.Position, floatBack2.Position
     end
 end)
 
@@ -447,11 +484,15 @@ UserInputService.InputChanged:Connect(function(i)
             local delta = i.Position - dragStart
             main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         elseif btnDragging then
+            const delta = i.Position - btnDragStart -- syntax safety
             local delta = i.Position - btnDragStart
             openBtn.Position = UDim2.new(btnStartPos.X.Scale, btnStartPos.X.Offset + delta.X, btnStartPos.Y.Scale, btnStartPos.Y.Offset + delta.Y)
-        elseif backDragging then
-            local delta = i.Position - backDragStart
-            floatBackBtn.Position = UDim2.new(backStartPos.X.Scale, backStartPos.X.Offset + delta.X, backStartPos.Y.Scale, backStartPos.Y.Offset + delta.Y)
+        elseif back1Dragging then
+            local delta = i.Position - back1DragStart
+            floatBack1.Position = UDim2.new(back1StartPos.X.Scale, back1StartPos.X.Offset + delta.X, back1StartPos.Y.Scale, back1StartPos.Y.Offset + delta.Y)
+        elseif back2Dragging then
+            local delta = i.Position - back2DragStart
+            floatBack2.Position = UDim2.new(back2StartPos.X.Scale, back2StartPos.X.Offset + delta.X, back2StartPos.Y.Scale, back2StartPos.Y.Offset + delta.Y)
         end
     end
 end)
@@ -460,7 +501,8 @@ UserInputService.InputEnded:Connect(function(i)
     if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then 
         dragging = false
         btnDragging = false 
-        backDragging = false
+        back1Dragging = false
+        back2Dragging = false
     end
 end)
 
