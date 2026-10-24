@@ -1,4 +1,4 @@
--- language: Luau, file: core_dual_fixed.lua, target: GitHub Raw
+-- language: Luau, file: core_rainbow_ui.lua, target: GitHub Raw
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -34,77 +34,78 @@ local function make(class, props, parent)
     return obj
 end
 
--- Teleport Fix (Gunakan PivotTo & StreamingAround)
+-- Teleport Fix (PivotTo + StreamingAround)
 local function safeTeleport(targetCFrame)
     local char = player.Character
     if not char then return end
-    
     pcall(function()
         if game.Workspace.StreamingEnabled then
             player:RequestStreamAroundAsync(targetCFrame.Position)
         end
     end)
-    
     task.wait(0.05)
     char:PivotTo(targetCFrame)
 end
 
 -- ScreenGui
-local screen = make("ScreenGui", {Name = "PowaHubBright", ResetOnSpawn = false}, gui)
+local screen = make("ScreenGui", {Name = "PowaHubRainbow", ResetOnSpawn = false}, gui)
 
--- Floating Teleport Buttons
+-- Floating Buttons (Garis Tepi & Font Tipis)
 local floatBack1 = make("TextButton", {
     Size = UDim2.new(0, 48, 0, 48), Position = UDim2.new(0, 15, 0, 80),
     BackgroundColor3 = Color3.fromRGB(14, 165, 233), TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold, TextSize = 11, Text = "BK 1", Visible = false, ZIndex = 10
+    Font = Enum.Font.FredokaOne, TextSize = 13, Text = "BK 1", Visible = false, ZIndex = 10
 }, screen)
 make("UICorner", {CornerRadius = UDim.new(0, 10)}, floatBack1)
-make("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1.5}, floatBack1)
+make("UIStroke", {Color = Color3.fromRGB(15, 23, 42), Thickness = 1.5}, floatBack1)
 
 local floatBack2 = make("TextButton", {
     Size = UDim2.new(0, 48, 0, 48), Position = UDim2.new(0, 15, 0, 135),
     BackgroundColor3 = Color3.fromRGB(168, 85, 247), TextColor3 = Color3.fromRGB(255, 255, 255),
-    Font = Enum.Font.GothamBold, TextSize = 11, Text = "BK 2", Visible = false, ZIndex = 10
+    Font = Enum.Font.FredokaOne, TextSize = 13, Text = "BK 2", Visible = false, ZIndex = 10
 }, screen)
 make("UICorner", {CornerRadius = UDim.new(0, 10)}, floatBack2)
-make("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1.5}, floatBack2)
+make("UIStroke", {Color = Color3.fromRGB(15, 23, 42), Thickness = 1.5}, floatBack2)
 
 -- Open Button
 local openBtn = make("TextButton", {
     Size = UDim2.new(0, 48, 0, 48), Position = UDim2.new(0, 15, 0, 20),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255), TextColor3 = Color3.fromRGB(14, 165, 233),
-    Font = Enum.Font.GothamBold, TextSize = 15, Text = "HUB", Visible = false, ZIndex = 10
+    Font = Enum.Font.FredokaOne, TextSize = 14, Text = "HUB", Visible = false, ZIndex = 10
 }, screen)
 make("UICorner", {CornerRadius = UDim.new(0, 10)}, openBtn)
-make("UIStroke", {Color = Color3.fromRGB(14, 165, 233), Thickness = 2}, openBtn)
+make("UIStroke", {Color = Color3.fromRGB(14, 165, 233), Thickness = 1.5}, openBtn)
 
--- Main Frame (Clean Bright Theme)
-local main = make("Frame", {
+-- Main Frame dengan Latar Belakang Gambar Pelangi
+local main = make("ImageLabel", {
     Size = UDim2.new(0, 480, 0, 300), Position = UDim2.new(0.5, -240, 0.5, -150),
-    BackgroundColor3 = Color3.fromRGB(248, 250, 252), BorderSizePixel = 0
+    Image = "rbxassetid://6071575925", -- Asset ID Gambar Pelangi & Langit
+    ScaleType = Enum.ScaleType.Crop,
+    BorderSizePixel = 0, Active = true
 }, screen)
-make("UICorner", {CornerRadius = UDim.new(0, 12)}, main)
-make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 2}, main)
+make("UICorner", {CornerRadius = UDim.new(0, 14)}, main)
+make("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 2}, main)
 
 -- Top Bar
 local topBar = make("Frame", {Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1}, main)
-make("TextLabel", {
+local titleLabel = make("TextLabel", {
     Size = UDim2.new(1, -70, 1, 0), Position = UDim2.new(0, 16, 0, 0),
-    BackgroundTransparency = 1, Font = Enum.Font.GothamBold, Text = "POWA // HUB",
-    TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 15, TextXAlignment = Enum.TextXAlignment.Left
+    BackgroundTransparency = 1, Font = Enum.Font.FredokaOne, Text = "POWA // HUB",
+    TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 16, TextXAlignment = Enum.TextXAlignment.Left
 }, topBar)
+make("UIStroke", {Color = Color3.fromRGB(15, 23, 42), Thickness = 1.5}, titleLabel)
 
 local minBtn = make("TextButton", {
     Size = UDim2.new(0, 30, 0, 30), Position = UDim2.new(1, -38, 0, 5),
-    BackgroundColor3 = Color3.fromRGB(241, 245, 249), Font = Enum.Font.GothamBold, Text = "-",
-    TextColor3 = Color3.fromRGB(100, 116, 139), TextSize = 16
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBold, Text = "-",
+    TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 16
 }, topBar)
 make("UICorner", {CornerRadius = UDim.new(0, 6)}, minBtn)
 
--- Sidebar & Content
+-- Sidebar & Content (Semi Transparan agar Gambar Terlihat Ciamik)
 local sidebar = make("ScrollingFrame", {
     Size = UDim2.new(0, 120, 1, -50), Position = UDim2.new(0, 10, 0, 42),
-    BackgroundColor3 = Color3.fromRGB(241, 245, 249), BorderSizePixel = 0,
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.3, BorderSizePixel = 0,
     CanvasSize = UDim2.new(0,0,0,0), ScrollBarThickness = 2
 }, main)
 make("UICorner", {CornerRadius = UDim.new(0, 8)}, sidebar)
@@ -120,7 +121,7 @@ local tabs, contents = {"Profile", "Menu", "Misc", "Server Hop", "Setting"}, {}
 for i, name in ipairs(tabs) do
     local tBtn = make("TextButton", {
         Size = UDim2.new(1, -6, 0, 34), BackgroundColor3 = i == 1 and Color3.fromRGB(14, 165, 233) or Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.GothamSemibold, Text = name, TextColor3 = i == 1 and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(100, 116, 139),
+        Font = Enum.Font.GothamMedium, Text = name, TextColor3 = i == 1 and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(15, 23, 42),
         TextSize = 12, LayoutOrder = i
     }, sidebar)
     make("UICorner", {CornerRadius = UDim.new(0, 6)}, tBtn)
@@ -135,7 +136,7 @@ for i, name in ipairs(tabs) do
     tBtn.MouseButton1Click:Connect(function()
         for _, child in ipairs(sidebar:GetChildren()) do
             if child:IsA("TextButton") then
-                child.BackgroundColor3, child.TextColor3 = Color3.fromRGB(255, 255, 255), Color3.fromRGB(100, 116, 139)
+                child.BackgroundColor3, child.TextColor3 = Color3.fromRGB(255, 255, 255), Color3.fromRGB(15, 23, 42)
             end
         end
         for _, p in pairs(contents) do p.Visible = false end
@@ -147,17 +148,17 @@ end
 -- Helper Components
 local function makeToggle(parentPanel, text, callback)
     local btn = make("TextButton", {
-        Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.GothamMedium, Text = text .. " : OFF", TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12
+        Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.2,
+        Font = Enum.Font.GothamMedium, Text = text .. " : OFF", TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12
     }, parentPanel)
     make("UICorner", {CornerRadius = UDim.new(0, 6)}, btn)
-    make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, btn)
+    make("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1}, btn)
     
     local state = false
     btn.MouseButton1Click:Connect(function()
         state = not state
         btn.Text = text .. (state and " : ON" or " : OFF")
-        btn.TextColor3 = state and Color3.fromRGB(14, 165, 233) or Color3.fromRGB(71, 85, 105)
+        btn.TextColor3 = state and Color3.fromRGB(14, 165, 233) or Color3.fromRGB(15, 23, 42)
         btn.BackgroundColor3 = state and Color3.fromRGB(240, 249, 255) or Color3.fromRGB(255, 255, 255)
         callback(state)
     end)
@@ -165,11 +166,11 @@ end
 
 local function makeButton(parentPanel, text, callback)
     local btn = make("TextButton", {
-        Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-        Font = Enum.Font.GothamMedium, Text = text, TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12
+        Size = UDim2.new(1, 0, 0, 36), BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.2,
+        Font = Enum.Font.GothamMedium, Text = text, TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12
     }, parentPanel)
     make("UICorner", {CornerRadius = UDim.new(0, 6)}, btn)
-    make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, btn)
+    make("UIStroke", {Color = Color3.fromRGB(255, 255, 255), Thickness = 1}, btn)
     btn.MouseButton1Click:Connect(callback)
 end
 
@@ -177,20 +178,18 @@ end
 local pPanel = contents["Profile"]
 
 local wsC = make("Frame", {Size = UDim2.new(1, 0, 0, 36), BackgroundTransparency = 1}, pPanel)
-make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "WalkSpeed", TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, wsC)
+make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "WalkSpeed", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, wsC)
 local wsBox = make("TextBox", {Size = UDim2.new(0.35, 0, 0.8, 0), Position = UDim2.new(0.65, 0, 0.1, 0), BackgroundColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamMedium, Text = "16", TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12}, wsC)
 make("UICorner", {CornerRadius = UDim.new(0, 6)}, wsBox)
-make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, wsBox)
 
 wsBox.FocusLost:Connect(function(e)
     if e then wsVal = tonumber(wsBox.Text) or 16 end
 end)
 
 local cfC = make("Frame", {Size = UDim2.new(1, 0, 0, 36), BackgroundTransparency = 1}, pPanel)
-make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "CFrame Speed", TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, cfC)
+make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "CFrame Speed", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, cfC)
 local cfBox = make("TextBox", {Size = UDim2.new(0.35, 0, 0.8, 0), Position = UDim2.new(0.65, 0, 0.1, 0), BackgroundColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamMedium, Text = "1", TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12}, cfC)
 make("UICorner", {CornerRadius = UDim.new(0, 6)}, cfBox)
-make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, cfBox)
 
 cfBox.FocusLost:Connect(function(e)
     if e then cfSpeedVal = tonumber(cfBox.Text) or 1 end
@@ -200,7 +199,7 @@ makeToggle(pPanel, "CFrame Speed Bypass", function(s) cfSpeedActive = s end)
 makeToggle(pPanel, "NoClip", function(s) noclip = s end)
 makeToggle(pPanel, "Infinite Jump", function(s) infJump = s end)
 
--- Menu Panel (Dual Teleport Fix)
+-- Menu Panel (Dual Teleport)
 local mPanel = contents["Menu"]
 
 makeToggle(mPanel, "Instant Prompt", function(s) instantPromptActive = s end)
@@ -262,7 +261,6 @@ local tpBox = make("TextBox", {
     TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12
 }, mPanel)
 make("UICorner", {CornerRadius = UDim.new(0, 6)}, tpBox)
-make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, tpBox)
 
 makeButton(mPanel, "Teleport Ke Player", function()
     local targetName = string.lower(tpBox.Text)
@@ -363,10 +361,9 @@ makeToggle(miscPanel, "Fullbright", function(s)
 end)
 
 local fovC = make("Frame", {Size = UDim2.new(1, 0, 0, 36), BackgroundTransparency = 1}, miscPanel)
-make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "Field of View", TextColor3 = Color3.fromRGB(71, 85, 105), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, fovC)
+make("TextLabel", {Size = UDim2.new(0.6, 0, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, Text = "Field of View", TextColor3 = Color3.fromRGB(255, 255, 255), TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left}, fovC)
 local fovBox = make("TextBox", {Size = UDim2.new(0.35, 0, 0.8, 0), Position = UDim2.new(0.65, 0, 0.1, 0), BackgroundColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamMedium, Text = "70", TextColor3 = Color3.fromRGB(15, 23, 42), TextSize = 12}, fovC)
 make("UICorner", {CornerRadius = UDim.new(0, 6)}, fovBox)
-make("UIStroke", {Color = Color3.fromRGB(226, 232, 240), Thickness = 1}, fovBox)
 
 fovBox.FocusLost:Connect(function(e)
     if e then
