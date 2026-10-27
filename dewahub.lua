@@ -1,4 +1,4 @@
--- language: Luau, file: core_rainbow_ui.lua, target: GitHub Raw
+-- language: Luau, file: core_rainbow_ui_final.lua, target: GitHub Raw
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -25,6 +25,7 @@ local fullbrightActive = false
 local tapTpActive = false
 local isSpectating = false
 local originalCameraSubject = nil
+local fpsBoostActive = false
 
 -- UI Factory Helper
 local function make(class, props, parent)
@@ -34,17 +35,58 @@ local function make(class, props, parent)
     return obj
 end
 
--- Teleport Fix (PivotTo + StreamingAround)
+-- Teleport Fix Anti-Gameplay Paused (Non-blocking / Asynchronous Streaming)
 local function safeTeleport(targetCFrame)
     local char = player.Character
     if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    -- Pindahkan posisi secara instan agar tidak terkena jeda engine
+    hrp.CFrame = targetCFrame
+
+    -- Request streaming di latar belakang tanpa memblokir eksekusi utama
     pcall(function()
-        if game.Workspace.StreamingEnabled then
-            player:RequestStreamAroundAsync(targetCFrame.Position)
+        if Workspace.StreamingEnabled then
+            task.spawn(function()
+                player:RequestStreamAroundAsync(targetCFrame.Position)
+            end)
         end
     end)
-    task.wait(0.05)
-    char:PivotTo(targetCFrame)
+end
+
+-- FPS Boost / Potato Mode Function
+local function toggleFpsBoost(state)
+    fpsBoostActive = state
+    if state then
+        Lighting.GlobalShadows = false
+        Lighting.FogEnd = 9e9
+        Lighting.Brightness = 1
+        
+        for _, v in ipairs(Lighting:GetChildren()) do
+            if v:IsA("PostEffect") or v:IsA("Atmosphere") or v:IsA("Sky") then
+                v.Enabled = false
+            end
+        end
+        
+        for _, obj in ipairs(Workspace:GetDescendants()) do
+            if obj:IsA("Decal") or obj:IsA("Texture") then
+                obj.Transparency = 1
+            elseif obj:IsA("BasePart") then
+                obj.Material = Enum.Material.SmoothPlastic
+                obj.Reflectance = 0
+            elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Fire") or obj:IsA("Smoke") then
+                obj.Enabled = false
+            end
+        end
+    else
+        Lighting.GlobalShadows = true
+        for _, v in ipairs(Lighting:GetChildren()) do
+            if v:IsA("PostEffect") or v:IsA("Atmosphere") or v:IsA("Sky") then
+                v.Enabled = true
+            end
+        end
+    end
 end
 
 -- ScreenGui
@@ -79,7 +121,7 @@ make("UIStroke", {Color = Color3.fromRGB(14, 165, 233), Thickness = 1.5}, openBt
 -- Main Frame dengan Latar Belakang Gambar Pelangi
 local main = make("ImageLabel", {
     Size = UDim2.new(0, 480, 0, 300), Position = UDim2.new(0.5, -240, 0.5, -150),
-    Image = "rbxassetid://6071575925", -- Asset ID Gambar Pelangi & Langit
+    Image = "rbxassetid://6071575925",
     ScaleType = Enum.ScaleType.Crop,
     BorderSizePixel = 0, Active = true
 }, screen)
@@ -102,7 +144,7 @@ local minBtn = make("TextButton", {
 }, topBar)
 make("UICorner", {CornerRadius = UDim.new(0, 6)}, minBtn)
 
--- Sidebar & Content (Semi Transparan agar Gambar Terlihat Ciamik)
+-- Sidebar & Content
 local sidebar = make("ScrollingFrame", {
     Size = UDim2.new(0, 120, 1, -50), Position = UDim2.new(0, 10, 0, 42),
     BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.3, BorderSizePixel = 0,
@@ -199,7 +241,7 @@ makeToggle(pPanel, "CFrame Speed Bypass", function(s) cfSpeedActive = s end)
 makeToggle(pPanel, "NoClip", function(s) noclip = s end)
 makeToggle(pPanel, "Infinite Jump", function(s) infJump = s end)
 
--- Menu Panel (Dual Teleport)
+-- Menu Panel
 local mPanel = contents["Menu"]
 
 makeToggle(mPanel, "Instant Prompt", function(s) instantPromptActive = s end)
@@ -293,8 +335,12 @@ makeButton(mPanel, "Spectate Player", function()
     end
 end)
 
--- Misc Panel
+-- Misc Panel (Termasuk FPS Boost)
 local miscPanel = contents["Misc"]
+
+makeToggle(miscPanel, "FPS Boost", function(s)
+    toggleFpsBoost(s)
+end)
 
 makeToggle(miscPanel, "Player ESP", function(s)
     espActive = s
